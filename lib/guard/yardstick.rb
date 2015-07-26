@@ -75,13 +75,25 @@ module Guard
     #
     # @api private
     # @return [Void]
-    def inspect_with_yardstick(_paths = [])
-      measurements = ::Yardstick.measure
+    def inspect_with_yardstick(paths = [])
+      measurements = ::Yardstick.measure(configuration(paths))
       measurements.puts
     rescue => error
       UI.error 'The following exception occurred while running ' \
                "guard-yardstick: #{error.backtrace.first} " \
                "#{error.message} (#{error.class.name})"
+    end
+
+    # Build config and only set path if it isn't empty
+    #
+    # Yardstick defaults to 'lib/**/*.rb' when path is not specified
+    #
+    # @api private
+    # @return [::Yardstick::Config] [configuration]
+    def configuration(paths)
+      ::Yardstick::Config.new do |config|
+        config.path = paths unless paths.empty?
+      end
     end
 
     # Returns a path with pwd removed if needed
